@@ -47,11 +47,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pass\CpuParseInfoPass.cs" />
+    <Compile Include="Parser\ZealCpu.g4.lexer.cs">
+      <DependentUpon>ZealCpu.g4</DependentUpon>
+    </Compile>
+    <Compile Include="Parser\ZealCpu.g4.parser.cs">
+      <DependentUpon>ZealCpu.g4</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Data\RomHeader.cs" />
+    <Compile Include="Parser\ZealCpuDriver.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <Antlr4 Include="Parser\ZealCpu.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>Zeal.Compiler.Parser</CustomToolNamespace>
+    </Antlr4>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
