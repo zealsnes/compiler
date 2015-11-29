@@ -38,5 +38,28 @@ header
             Assert.Equal(0x1Au, parser.Header.Developer);
             Assert.Equal(10u, parser.Header.Version);
         }
+
+        [Fact]
+        public void ShouldParseVectorsInfo()
+        {
+            string input = @"
+vectors
+{
+    COP = CopVector
+    BRK = BrkVector
+    IRQ = IrqVector
+    NMI = NmiVector
+    Reset = Main
+}
+";
+            ZealCpuDriver parser = new ZealCpuDriver(input.ToMemoryStream());
+            parser.Parse();
+
+            Assert.Equal("CopVector", parser.Vectors.COP);
+            Assert.Equal("BrkVector", parser.Vectors.BRK);
+            Assert.Equal("IrqVector", parser.Vectors.IRQ);
+            Assert.Equal("NmiVector", parser.Vectors.NMI);
+            Assert.Equal("Main", parser.Vectors.Reset);
+        }
     }
 }

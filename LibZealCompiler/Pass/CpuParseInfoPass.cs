@@ -24,15 +24,15 @@ namespace Zeal.Compiler.Pass
         {
             foreach (var info in context.headerInfo())
             {
-                switch (info.IDENTIFIER().GetText())
+                switch (info.headerType.Text)
                 {
                     case "CatridgeName":
-                        _driver.Header.CatridgeName = parseStringLiteral(info.literal().STRING_LITERAL());
+                        _driver.Header.CatridgeName = parseStringLiteral(info.headerValue.STRING_LITERAL());
                         break;
                     case "RomSpeed":
                         {
                             RomSpeed speed = RomSpeed.SlowROM;
-                            if (Enum.TryParse<RomSpeed>(info.literal().IDENTIFIER().GetText(), out speed))
+                            if (Enum.TryParse<RomSpeed>(info.headerValue.IDENTIFIER().GetText(), out speed))
                             {
                                 _driver.Header.RomSpeed = speed;
                             }
@@ -41,19 +41,19 @@ namespace Zeal.Compiler.Pass
                     case "MapMode":
                         {
                             MapMode mode = MapMode.LoROM;
-                            if (Enum.TryParse<MapMode>(info.literal().IDENTIFIER().GetText(), out mode))
+                            if (Enum.TryParse<MapMode>(info.headerValue.IDENTIFIER().GetText(), out mode))
                             {
                                 _driver.Header.MapMode = mode;
                             }
                             break;
                         }
                     case "SramSize":
-                        _driver.Header.SramSize = (uint)parseNumberLiteral(info.literal().numberLiteral());
+                        _driver.Header.SramSize = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
                         break;
                     case "Country":
                         {
                             Country country = Country.Japan;
-                            if (Enum.TryParse<Country>(info.literal().IDENTIFIER().GetText(), out country))
+                            if (Enum.TryParse<Country>(info.headerValue.IDENTIFIER().GetText(), out country))
                             {
                                 _driver.Header.Country = country;
                             }
@@ -61,14 +61,41 @@ namespace Zeal.Compiler.Pass
                         }
                     case "Developer":
                         {
-                            _driver.Header.Developer = (uint)parseNumberLiteral(info.literal().numberLiteral());
+                            _driver.Header.Developer = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
                             break;
                         }
                     case "Version":
                         {
-                            _driver.Header.Version = (uint)parseNumberLiteral(info.literal().numberLiteral());
+                            _driver.Header.Version = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
                             break;
                         }
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public override void ExitVectorsDeclaration([NotNull] ZealCpuParser.VectorsDeclarationContext context)
+        {
+            foreach(var info in context.vectorInfo())
+            {
+                switch(info.vectorType.Text)
+                {
+                    case "COP":
+                        _driver.Vectors.COP = info.labelName.Text;
+                        break;
+                    case "BRK":
+                        _driver.Vectors.BRK = info.labelName.Text;
+                        break;
+                    case "IRQ":
+                        _driver.Vectors.IRQ = info.labelName.Text;
+                        break;
+                    case "NMI":
+                        _driver.Vectors.NMI = info.labelName.Text;
+                        break;
+                    case "Reset":
+                        _driver.Vectors.Reset = info.labelName.Text;
+                        break;
                     default:
                         break;
                 }

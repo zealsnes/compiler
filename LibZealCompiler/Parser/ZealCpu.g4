@@ -6,6 +6,8 @@ grammar ZealCpu;
 HEADER: 'header';
 VECTORS: 'vectors';
 PROCEDURE: 'procedure';
+FUNCTION: 'function';
+INTERRUPT: 'interrupt';
 
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]* ;
 
@@ -16,10 +18,11 @@ BINARY_LITERAL: '%' [0-1]+;
 
 WHITESPACE : (' '|'\t'|'\n')+ -> channel(HIDDEN) ;
 
+// ==========
 // = Parser =
 // ==========
 root
-	: headerDeclaration?
+	: (headerDeclaration|vectorsDeclaration)*
 	;
 
 headerDeclaration
@@ -29,7 +32,17 @@ headerDeclaration
 	;
 
 headerInfo
-	: IDENTIFIER '=' literal
+	: headerType=IDENTIFIER '=' headerValue=literal
+	;
+
+vectorsDeclaration
+	: VECTORS '{'
+		vectorInfo*
+	'}'
+	;
+
+vectorInfo
+	: vectorType=IDENTIFIER '=' labelName=IDENTIFIER
 	;
 
 literal

@@ -14,6 +14,8 @@ namespace Zeal.Compiler.Parser
     public class ZealCpuDriver
     {
         private RomHeader _header = new RomHeader();
+        private Vectors _vectors = new Vectors();
+
         private AntlrInputStream _inputStream;
         private ZealCpuLexer _lexer;
         private CommonTokenStream _tokenStream;
@@ -24,6 +26,14 @@ namespace Zeal.Compiler.Parser
             get
             {
                 return _header;
+            }
+        }
+
+        public Vectors Vectors
+        {
+            get
+            {
+                return _vectors;
             }
         }
 

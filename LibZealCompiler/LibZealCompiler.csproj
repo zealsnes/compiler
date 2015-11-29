@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Vectors.cs" />
     <Compile Include="Pass\CpuParseInfoPass.cs" />
     <Compile Include="Parser\ZealCpu.g4.lexer.cs">
       <DependentUpon>ZealCpu.g4</DependentUpon>
