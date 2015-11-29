@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZealCompiler", "ZealCompiler\ZealCompiler.csproj", "{C97F37AE-1059-43A8-BFF1-279C85462A21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibZealCompiler", "LibZealCompiler\LibZealCompiler.csproj", "{58DC5B8A-BD9E-4F08-A898-14331DF4FA9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZealCompilerUnitTests", "ZealCompilerUnitTests\ZealCompilerUnitTests.csproj", "{6E1C4D2E-A3BC-4D42-A00B-0937AAB939AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C97F37AE-1059-43A8-BFF1-279C85462A21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C97F37AE-1059-43A8-BFF1-279C85462A21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C97F37AE-1059-43A8-BFF1-279C85462A21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C97F37AE-1059-43A8-BFF1-279C85462A21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58DC5B8A-BD9E-4F08-A898-14331DF4FA9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58DC5B8A-BD9E-4F08-A898-14331DF4FA9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58DC5B8A-BD9E-4F08-A898-14331DF4FA9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58DC5B8A-BD9E-4F08-A898-14331DF4FA9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E1C4D2E-A3BC-4D42-A00B-0937AAB939AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E1C4D2E-A3BC-4D42-A00B-0937AAB939AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E1C4D2E-A3BC-4D42-A00B-0937AAB939AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E1C4D2E-A3BC-4D42-A00B-0937AAB939AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
