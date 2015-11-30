@@ -6,7 +6,6 @@ grammar ZealCpu;
 HEADER: 'header';
 VECTORS: 'vectors';
 PROCEDURE: 'procedure';
-FUNCTION: 'function';
 INTERRUPT: 'interrupt';
 
 INSTRUCTION: [a-z]+ ;
@@ -28,6 +27,7 @@ root
 	  headerDeclaration
 	| vectorsDeclaration
 	| procedureDeclaration
+	| interruptDeclaration
 	)*
 	;
 
@@ -57,21 +57,23 @@ procedureDeclaration
 	'}'
 	;
 
+interruptDeclaration
+	: INTERRUPT name=IDENTIFIER '{'
+		statement*
+	'}'
+	;
+
 statement
 	: instructionStatement
 	;
 
 instructionStatement
-	: impliedInstruction
-	| immediateInstruction
+	: opcode=INSTRUCTION argument
 	;
 
-impliedInstruction
-	: opcode=INSTRUCTION
-	;
-
-immediateInstruction
-	: opcode=INSTRUCTION '#' numberLiteral
+argument
+	: numberLiteral # Address
+	| '#' numberLiteral # Immediate
 	;
 
 literal

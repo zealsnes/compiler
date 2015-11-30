@@ -15,6 +15,7 @@ namespace Zeal.Compiler.Pass
     {
         private ZealCpuDriver _driver;
         private Scope _currentScope;
+        private CpuInstructionStatement _currentInstruction;
 
         public CpuParseInfoPass(ZealCpuDriver driver)
         {
@@ -112,39 +113,67 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitProcedureDeclaration([NotNull] ZealCpuParser.ProcedureDeclarationContext context)
         {
-            var statements = context.statement().Length;
-
             _driver.Scopes.Add(_currentScope);
             _currentScope = null;
         }
 
-        public override void ExitImpliedInstruction([NotNull] ZealCpuParser.ImpliedInstructionContext context)
+        public override void EnterInterruptDeclaration([NotNull] ZealCpuParser.InterruptDeclarationContext context)
         {
+            _currentScope = new Scope();
+            _currentScope.Name = context.name.Text;
+            _currentScope.Type = ScopeType.Interrupt;
+        }
+
+        public override void ExitInterruptDeclaration([NotNull] ZealCpuParser.InterruptDeclarationContext context)
+        {
+            _driver.Scopes.Add(_currentScope);
+            _currentScope = null;
+        }
+
+        public override void EnterInstructionStatement([NotNull] ZealCpuParser.InstructionStatementContext context)
+        {
+            _currentInstruction = new CpuInstructionStatement();
+
             CpuInstructions opcode;
             if (Enum.TryParse<CpuInstructions>(context.opcode.Text, out opcode))
             {
-                CpuInstructionStatement instruction = new CpuInstructionStatement();
-                instruction.Opcode = opcode;
-                instruction.AddressingMode = CpuAddressingMode.Implied;
-
-                _currentScope.Statements.Add(instruction);
+                _currentInstruction.Opcode = opcode;
             }
         }
 
-        public override void ExitImmediateInstruction([NotNull] ZealCpuParser.ImmediateInstructionContext context)
+        public override void ExitAddress([NotNull] ZealCpuParser.AddressContext context)
         {
-            CpuInstructions opcode;
-            if (Enum.TryParse<CpuInstructions>(context.opcode.Text, out opcode))
+            var argument = new NumberInstructionArgument(parseNumberLiteral(context.numberLiteral()));
+
+            if (argument.Number > byte.MaxValue)
             {
-                CpuInstructionStatement instruction = new CpuInstructionStatement();
-                instruction.Opcode = opcode;
-                instruction.AddressingMode = CpuAddressingMode.Immediate;
-
-                NumberInstructionArgument arg = new NumberInstructionArgument(parseNumberLiteral(context.numberLiteral()));
-                instruction.Arguments.Add(arg);
-
-                _currentScope.Statements.Add(instruction);
+                _currentInstruction.AddressingMode = CpuAddressingMode.Absolute;
             }
+            else
+            {
+                _currentInstruction.AddressingMode = CpuAddressingMode.Direct;
+            }
+
+            _currentInstruction.Arguments.Add(argument);
+        }
+
+        public override void ExitImmediate([NotNull] ZealCpuParser.ImmediateContext context)
+        {
+            var argument = new NumberInstructionArgument(parseNumberLiteral(context.numberLiteral()));
+            _currentInstruction.Arguments.Add(argument);
+
+            _currentInstruction.AddressingMode = CpuAddressingMode.Immediate;
+        }
+
+        public override void ExitInstructionStatement([NotNull] ZealCpuParser.InstructionStatementContext context)
+        {
+            if (_currentInstruction.Arguments.Count == 0)
+            {
+                _currentInstruction.AddressingMode = CpuAddressingMode.Implied;
+            }
+
+            _currentScope.Statements.Add(_currentInstruction);
+            _currentInstruction = null;
         }
 
         private string parseStringLiteral(ITerminalNode node)

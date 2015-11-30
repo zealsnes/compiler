@@ -80,6 +80,19 @@ vectors
             Assert.Equal(ScopeType.Procedure, driver.Scopes[0].Type);
         }
 
+        [Fact]
+        public void ShouldParseInterrupt()
+        {
+            string input = @"interrupt EmptyVector
+{
+}";
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            Assert.Equal("EmptyVector", driver.Scopes[0].Name);
+            Assert.Equal(ScopeType.Interrupt, driver.Scopes[0].Type);
+        }
+
         [Theory]
         [InlineData("clc", CpuInstructions.clc)]
         [InlineData("cld", CpuInstructions.cld)]
@@ -135,6 +148,41 @@ vectors
             CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
             Assert.Equal(opcodeEnum, instructionStatement.Opcode);
             Assert.Equal(CpuAddressingMode.Immediate, instructionStatement.AddressingMode);
+
+            var numberArgument = instructionStatement.Arguments[0] as NumberInstructionArgument;
+            Assert.Equal(value, numberArgument.Number);
+        }
+
+        [Theory]
+        [InlineData("sta $00", CpuInstructions.sta, 0)]
+        [InlineData("lda $02", CpuInstructions.lda, 2)]
+        public void ShouldParseDirectInstructions(string instruction, CpuInstructions opcodeEnum, int value)
+        {
+            string input = String.Format(ProcedureTemplate, instruction);
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            Assert.Equal(opcodeEnum, instructionStatement.Opcode);
+            Assert.Equal(CpuAddressingMode.Direct, instructionStatement.AddressingMode);
+
+            var numberArgument = instructionStatement.Arguments[0] as NumberInstructionArgument;
+            Assert.Equal(value, numberArgument.Number);
+        }
+
+        [Theory]
+        [InlineData("sta $2100", CpuInstructions.sta, 0x2100)]
+        public void ShouldParseAbsoluteInstructions(string instruction, CpuInstructions opcodeEnum, int value)
+        {
+            string input = String.Format(ProcedureTemplate, instruction);
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            Assert.Equal(opcodeEnum, instructionStatement.Opcode);
+            Assert.Equal(CpuAddressingMode.Absolute, instructionStatement.AddressingMode);
 
             var numberArgument = instructionStatement.Arguments[0] as NumberInstructionArgument;
             Assert.Equal(value, numberArgument.Number);

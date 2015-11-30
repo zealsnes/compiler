@@ -10,7 +10,6 @@ namespace Zeal.Compiler.Data
     {
         Scope,
         Procedure,
-        Function,
         Interrupt
     }
 
