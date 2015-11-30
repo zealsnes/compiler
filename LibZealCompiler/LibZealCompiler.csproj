@@ -47,8 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\CpuAddressingMode.cs" />
     <Compile Include="Data\CpuInstructions.cs" />
-    <Compile Include="Data\InstructionStatement.cs" />
+    <Compile Include="Data\CpuInstructionStatement.cs" />
+    <Compile Include="Data\InstructionArgument.cs" />
     <Compile Include="Data\Scope.cs" />
     <Compile Include="Data\Statement.cs" />
     <Compile Include="Data\Vectors.cs" />

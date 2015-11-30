@@ -63,10 +63,15 @@ statement
 
 instructionStatement
 	: impliedInstruction
+	| immediateInstruction
 	;
 
 impliedInstruction
 	: opcode=INSTRUCTION
+	;
+
+immediateInstruction
+	: opcode=INSTRUCTION '#' numberLiteral
 	;
 
 literal

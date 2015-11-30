@@ -123,8 +123,25 @@ namespace Zeal.Compiler.Pass
             CpuInstructions opcode;
             if (Enum.TryParse<CpuInstructions>(context.opcode.Text, out opcode))
             {
-                InstructionStatement instruction = new InstructionStatement();
+                CpuInstructionStatement instruction = new CpuInstructionStatement();
                 instruction.Opcode = opcode;
+                instruction.AddressingMode = CpuAddressingMode.Implied;
+
+                _currentScope.Statements.Add(instruction);
+            }
+        }
+
+        public override void ExitImmediateInstruction([NotNull] ZealCpuParser.ImmediateInstructionContext context)
+        {
+            CpuInstructions opcode;
+            if (Enum.TryParse<CpuInstructions>(context.opcode.Text, out opcode))
+            {
+                CpuInstructionStatement instruction = new CpuInstructionStatement();
+                instruction.Opcode = opcode;
+                instruction.AddressingMode = CpuAddressingMode.Immediate;
+
+                NumberInstructionArgument arg = new NumberInstructionArgument(parseNumberLiteral(context.numberLiteral()));
+                instruction.Arguments.Add(arg);
 
                 _currentScope.Statements.Add(instruction);
             }

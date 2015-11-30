@@ -12,6 +12,11 @@ namespace Zeal.Compiler.UnitTests
 {
     public class CpuParseTest
     {
+        const string ProcedureTemplate = @"procedure Test
+{{
+    {0}
+}}";
+
         [Fact]
         public void ShouldParseHeaderInfo()
         {
@@ -107,22 +112,32 @@ vectors
         [InlineData("xce", CpuInstructions.xce)]
         public void ShouldParseImpliedInstructions(string opcodeText, CpuInstructions opcodeEnum)
         {
-            const string template = @"procedure Test
-{{
-    {0}
-}}";
-
-            string input = String.Format(template, opcodeText);
+            string input = String.Format(ProcedureTemplate, opcodeText);
 
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            InstructionStatement instruction = driver.Scopes[0].Statements[0] as InstructionStatement;
-            Assert.NotNull(instruction);
-            if (instruction != null)
-            {
-                Assert.Equal(opcodeEnum, instruction.Opcode);
-            }
+            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            Assert.Equal(opcodeEnum, instructionStatement.Opcode);
+            Assert.Equal(CpuAddressingMode.Implied, instructionStatement.AddressingMode);
+        }
+
+        [Theory]
+        [InlineData("rep #$38", CpuInstructions.rep, 0x38)]
+        [InlineData("ldx #$1FFF", CpuInstructions.ldx, 0x1FFF)]
+        public void ShouldParseImmediateInstructions(string instruction, CpuInstructions opcodeEnum, int value)
+        {
+            string input = String.Format(ProcedureTemplate, instruction);
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            Assert.Equal(opcodeEnum, instructionStatement.Opcode);
+            Assert.Equal(CpuAddressingMode.Immediate, instructionStatement.AddressingMode);
+
+            var numberArgument = instructionStatement.Arguments[0] as NumberInstructionArgument;
+            Assert.Equal(value, numberArgument.Number);
         }
     }
 }
