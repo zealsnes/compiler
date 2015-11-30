@@ -68,7 +68,7 @@ statement
 	;
 
 instructionStatement
-	: opcode=INSTRUCTION argument
+	: opcode=INSTRUCTION argument?
 	;
 
 argument

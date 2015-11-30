@@ -38,7 +38,6 @@ namespace Zeal.Compiler.Parser
         private List<Scope> _scopes = new List<Scope>();
         private List<ErrorMessage> _errors = new List<ErrorMessage>();
 
-        private AntlrInputStream _inputStream;
         private ZealCpuLexer _lexer;
         private CommonTokenStream _tokenStream;
         private ZealCpuParser _parser;
@@ -75,10 +74,19 @@ namespace Zeal.Compiler.Parser
             }
         }
 
-        public ZealCpuDriver(Stream stream)
+        public ZealCpuDriver(string inputFile)
+            : this(new AntlrFileStream(inputFile))
         {
-            _inputStream = new AntlrInputStream(stream);
-            _lexer = new ZealCpuLexer(_inputStream);
+        }
+
+        public ZealCpuDriver(Stream stream)
+            : this(new AntlrInputStream(stream))
+        {
+        }
+
+        private ZealCpuDriver(ICharStream antlrInputStream)
+        {
+            _lexer = new ZealCpuLexer(antlrInputStream);
             _tokenStream = new CommonTokenStream(_lexer);
             _parser = new ZealCpuParser(_tokenStream);
             _parser.RemoveErrorListeners();

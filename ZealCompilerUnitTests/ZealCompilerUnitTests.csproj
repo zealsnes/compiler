@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CpuCodeGeneratorTest.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="CpuParseTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
