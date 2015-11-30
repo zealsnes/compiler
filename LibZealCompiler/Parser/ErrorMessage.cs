@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Zeal.Compiler.Parser
+﻿namespace Zeal.Compiler.Parser
 {
     public class ErrorMessage
     {

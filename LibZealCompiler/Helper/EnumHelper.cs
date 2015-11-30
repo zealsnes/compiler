@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Zeal.Compiler.CodeGeneration;
-using Zeal.Compiler.Data;
 
 namespace Zeal.Compiler.Helper
 {

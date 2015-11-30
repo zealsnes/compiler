@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime.Misc;
-using Zeal.Compiler.Parser;
+﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
-using Zeal.Compiler.Data;
+using System;
 using System.Globalization;
+using Zeal.Compiler.Data;
+using Zeal.Compiler.Parser;
 
 namespace Zeal.Compiler.Pass
 {
