@@ -27,16 +27,16 @@ header
     Version = %1010
 }
 ";
-            ZealCpuDriver parser = new ZealCpuDriver(input.ToMemoryStream());
-            parser.Parse();
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
 
-            Assert.Equal("HELLO WORLD SNES", parser.Header.CatridgeName);
-            Assert.Equal(RomSpeed.SlowROM, parser.Header.RomSpeed);
-            Assert.Equal(MapMode.HiROM, parser.Header.MapMode);
-            Assert.Equal(32u, parser.Header.SramSize);
-            Assert.Equal(Country.NorthAmerica, parser.Header.Country);
-            Assert.Equal(0x1Au, parser.Header.Developer);
-            Assert.Equal(10u, parser.Header.Version);
+            Assert.Equal("HELLO WORLD SNES", driver.Header.CatridgeName);
+            Assert.Equal(RomSpeed.SlowROM, driver.Header.RomSpeed);
+            Assert.Equal(MapMode.HiROM, driver.Header.MapMode);
+            Assert.Equal(32u, driver.Header.SramSize);
+            Assert.Equal(Country.NorthAmerica, driver.Header.Country);
+            Assert.Equal(0x1Au, driver.Header.Developer);
+            Assert.Equal(10u, driver.Header.Version);
         }
 
         [Fact]
@@ -52,14 +52,77 @@ vectors
     Reset = Main
 }
 ";
-            ZealCpuDriver parser = new ZealCpuDriver(input.ToMemoryStream());
-            parser.Parse();
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
 
-            Assert.Equal("CopVector", parser.Vectors.COP);
-            Assert.Equal("BrkVector", parser.Vectors.BRK);
-            Assert.Equal("IrqVector", parser.Vectors.IRQ);
-            Assert.Equal("NmiVector", parser.Vectors.NMI);
-            Assert.Equal("Main", parser.Vectors.Reset);
+            Assert.Equal("CopVector", driver.Vectors.COP);
+            Assert.Equal("BrkVector", driver.Vectors.BRK);
+            Assert.Equal("IrqVector", driver.Vectors.IRQ);
+            Assert.Equal("NmiVector", driver.Vectors.NMI);
+            Assert.Equal("Main", driver.Vectors.Reset);
+        }
+
+        [Fact]
+        public void ShouldParseProcedure()
+        {
+            string input = @"procedure Test
+{
+}";
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            Assert.Equal("Test", driver.Scopes[0].Name);
+            Assert.Equal(ScopeType.Procedure, driver.Scopes[0].Type);
+        }
+
+        [Theory]
+        [InlineData("clc", CpuInstructions.clc)]
+        [InlineData("cld", CpuInstructions.cld)]
+        [InlineData("cli", CpuInstructions.cli)]
+        [InlineData("clv", CpuInstructions.clv)]
+        [InlineData("dex", CpuInstructions.dex)]
+        [InlineData("dey", CpuInstructions.dey)]
+        [InlineData("inc", CpuInstructions.inc)]
+        [InlineData("inx", CpuInstructions.inx)]
+        [InlineData("iny", CpuInstructions.iny)]
+        [InlineData("nop", CpuInstructions.nop)]
+        [InlineData("sec", CpuInstructions.sec)]
+        [InlineData("sed", CpuInstructions.sed)]
+        [InlineData("sei", CpuInstructions.sei)]
+        [InlineData("stp", CpuInstructions.stp)]
+        [InlineData("tax", CpuInstructions.tax)]
+        [InlineData("tay", CpuInstructions.tay)]
+        [InlineData("tcd", CpuInstructions.tcd)]
+        [InlineData("tcs", CpuInstructions.tcs)]
+        [InlineData("tdc", CpuInstructions.tdc)]
+        [InlineData("tsc", CpuInstructions.tsc)]
+        [InlineData("tsx", CpuInstructions.tsx)]
+        [InlineData("txa", CpuInstructions.txa)]
+        [InlineData("txs", CpuInstructions.txs)]
+        [InlineData("txy", CpuInstructions.txy)]
+        [InlineData("tya", CpuInstructions.tya)]
+        [InlineData("tyx", CpuInstructions.tyx)]
+        [InlineData("wai", CpuInstructions.wai)]
+        [InlineData("xba", CpuInstructions.xba)]
+        [InlineData("xce", CpuInstructions.xce)]
+        public void ShouldParseImpliedInstructions(string opcodeText, CpuInstructions opcodeEnum)
+        {
+            const string template = @"procedure Test
+{{
+    {0}
+}}";
+
+            string input = String.Format(template, opcodeText);
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            InstructionStatement instruction = driver.Scopes[0].Statements[0] as InstructionStatement;
+            Assert.NotNull(instruction);
+            if (instruction != null)
+            {
+                Assert.Equal(opcodeEnum, instruction.Opcode);
+            }
         }
     }
 }

@@ -47,7 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\CpuInstructions.cs" />
+    <Compile Include="Data\InstructionStatement.cs" />
+    <Compile Include="Data\Scope.cs" />
+    <Compile Include="Data\Statement.cs" />
     <Compile Include="Data\Vectors.cs" />
+    <Compile Include="Parser\ErrorMessage.cs" />
     <Compile Include="Pass\CpuParseInfoPass.cs" />
     <Compile Include="Parser\ZealCpu.g4.lexer.cs">
       <DependentUpon>ZealCpu.g4</DependentUpon>

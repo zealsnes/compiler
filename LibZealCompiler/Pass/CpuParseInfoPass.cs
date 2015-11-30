@@ -14,6 +14,7 @@ namespace Zeal.Compiler.Pass
     class CpuParseInfoPass : ZealCpuBaseListener
     {
         private ZealCpuDriver _driver;
+        private Scope _currentScope;
 
         public CpuParseInfoPass(ZealCpuDriver driver)
         {
@@ -99,6 +100,33 @@ namespace Zeal.Compiler.Pass
                     default:
                         break;
                 }
+            }
+        }
+
+        public override void EnterProcedureDeclaration([NotNull] ZealCpuParser.ProcedureDeclarationContext context)
+        {
+            _currentScope = new Scope();
+            _currentScope.Name = context.name.Text;
+            _currentScope.Type = ScopeType.Procedure;
+        }
+
+        public override void ExitProcedureDeclaration([NotNull] ZealCpuParser.ProcedureDeclarationContext context)
+        {
+            var statements = context.statement().Length;
+
+            _driver.Scopes.Add(_currentScope);
+            _currentScope = null;
+        }
+
+        public override void ExitImpliedInstruction([NotNull] ZealCpuParser.ImpliedInstructionContext context)
+        {
+            CpuInstructions opcode;
+            if (Enum.TryParse<CpuInstructions>(context.opcode.Text, out opcode))
+            {
+                InstructionStatement instruction = new InstructionStatement();
+                instruction.Opcode = opcode;
+
+                _currentScope.Statements.Add(instruction);
             }
         }
 

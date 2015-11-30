@@ -9,6 +9,7 @@ PROCEDURE: 'procedure';
 FUNCTION: 'function';
 INTERRUPT: 'interrupt';
 
+INSTRUCTION: [a-z]+ ;
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]* ;
 
 STRING_LITERAL: '"' .*? '"' ;
@@ -16,13 +17,18 @@ HEX_LITERAL: '$' [0-9a-fA-F]+ ;
 INTEGER_LITERAL: '-'? [0-9]+ ;
 BINARY_LITERAL: '%' [0-1]+;
 
-WHITESPACE : (' '|'\t'|'\n')+ -> channel(HIDDEN) ;
+LINE_COMMENT: ';' ~[\r\n]* -> skip;
+WHITESPACE : (' '|'\t'|'\n'|'\r')+ -> channel(HIDDEN) ;
 
 // ==========
 // = Parser =
 // ==========
 root
-	: (headerDeclaration|vectorsDeclaration)*
+	: (
+	  headerDeclaration
+	| vectorsDeclaration
+	| procedureDeclaration
+	)*
 	;
 
 headerDeclaration
@@ -43,6 +49,24 @@ vectorsDeclaration
 
 vectorInfo
 	: vectorType=IDENTIFIER '=' labelName=IDENTIFIER
+	;
+
+procedureDeclaration
+	: PROCEDURE name=IDENTIFIER '{'
+		statement*
+	'}'
+	;
+
+statement
+	: instructionStatement
+	;
+
+instructionStatement
+	: impliedInstruction
+	;
+
+impliedInstruction
+	: opcode=INSTRUCTION
 	;
 
 literal
