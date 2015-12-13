@@ -89,6 +89,28 @@ vectors
             Assert.Equal(ScopeType.Interrupt, driver.Scopes[0].Type);
         }
 
+        [Fact]
+        public void ShouldAddRTIWhenParsingInterrupt()
+        {
+            string input = @"interrupt NMI
+{
+    php
+    pha
+
+    pla
+    plp
+}";
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            var cpuInstruction = driver.Scopes[0].Statements[driver.Scopes[0].Statements.Count - 1] as CpuInstructionStatement;
+
+            Assert.Equal("NMI", driver.Scopes[0].Name);
+            Assert.Equal(ScopeType.Interrupt, driver.Scopes[0].Type);
+            Assert.Equal(CpuInstructions.rti, cpuInstruction.Opcode);
+            Assert.Equal(CpuAddressingMode.Implied, cpuInstruction.AddressingMode);
+        }
+
         [Theory]
         [InlineData("clc", CpuInstructions.clc)]
         [InlineData("cld", CpuInstructions.cld)]

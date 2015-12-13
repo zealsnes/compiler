@@ -176,5 +176,53 @@ namespace Zeal.Compiler.UnitTests
             Assert.Equal(finalOpcode, memoryStream.GetBuffer()[0]);
             Assert.Equal((byte)(value & 0xFF), memoryStream.GetBuffer()[1]);
         }
+
+        [Theory]
+        // Enum, opcode, value
+        [InlineData(CpuInstructions.adc, 0x6D, 0x34FF)]
+        [InlineData(CpuInstructions.and, 0x2D, 0x34FF)]
+        [InlineData(CpuInstructions.asl, 0x0E, 0x34FF)]
+        [InlineData(CpuInstructions.bit, 0x2C, 0x34FF)]
+        [InlineData(CpuInstructions.cmp, 0xCD, 0x34FF)]
+        [InlineData(CpuInstructions.cpx, 0xEC, 0x34FF)]
+        [InlineData(CpuInstructions.cpy, 0xCC, 0x34FF)]
+        [InlineData(CpuInstructions.dec, 0xCE, 0x34FF)]
+        [InlineData(CpuInstructions.eor, 0x4D, 0x34FF)]
+        [InlineData(CpuInstructions.inc, 0xEE, 0x34FF)]
+        [InlineData(CpuInstructions.jmp, 0x4C, 0x34FF)]
+        [InlineData(CpuInstructions.jsr, 0x20, 0x34FF)]
+        [InlineData(CpuInstructions.lda, 0xAD, 0x34FF)]
+        [InlineData(CpuInstructions.ldx, 0xAE, 0x34FF)]
+        [InlineData(CpuInstructions.ldy, 0xAC, 0x34FF)]
+        [InlineData(CpuInstructions.lsr, 0x4E, 0x34FF)]
+        [InlineData(CpuInstructions.ora, 0x0D, 0x34FF)]
+        [InlineData(CpuInstructions.rol, 0x2E, 0x34FF)]
+        [InlineData(CpuInstructions.ror, 0x6E, 0x34FF)]
+        [InlineData(CpuInstructions.sbc, 0xED, 0x34FF)]
+        [InlineData(CpuInstructions.sta, 0x8D, 0x34FF)]
+        [InlineData(CpuInstructions.stx, 0x8E, 0x34FF)]
+        [InlineData(CpuInstructions.sty, 0x8C, 0x34FF)]
+        [InlineData(CpuInstructions.stz, 0x9C, 0x34FF)]
+        [InlineData(CpuInstructions.trb, 0x1C, 0x34FF)]
+        [InlineData(CpuInstructions.tsb, 0x0C, 0x34FF)]
+        public void ShouldGenerateAbsoluteInstruction(CpuInstructions opcodeEnum, byte finalOpcode, int value)
+        {
+            CpuInstructionStatement instruction = new CpuInstructionStatement();
+            instruction.AddressingMode = CpuAddressingMode.Absolute;
+            instruction.Opcode = opcodeEnum;
+            instruction.Arguments.Add(new NumberInstructionArgument(value, ArgumentSize.Word));
+
+            List<CpuInstructionStatement> instructions = new List<CpuInstructionStatement>();
+            instructions.Add(instruction);
+
+            MemoryStream memoryStream = new MemoryStream(8);
+            CpuCodeGenerator generator = new CpuCodeGenerator(memoryStream);
+            generator.Instructions = instructions;
+            generator.Generate();
+
+            Assert.Equal(finalOpcode, memoryStream.GetBuffer()[0]);
+            Assert.Equal((byte)(value & 0xFF), memoryStream.GetBuffer()[1]);
+            Assert.Equal((byte)(value >> 8), memoryStream.GetBuffer()[2]);
+        }
     }
 }

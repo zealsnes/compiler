@@ -122,6 +122,12 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitInterruptDeclaration([NotNull] ZealCpuParser.InterruptDeclarationContext context)
         {
+            var rtiInstruction = new CpuInstructionStatement();
+            rtiInstruction.Opcode = CpuInstructions.rti;
+            rtiInstruction.AddressingMode = CpuAddressingMode.Implied;
+
+            _currentScope.Statements.Add(rtiInstruction);
+
             _driver.Scopes.Add(_currentScope);
             _currentScope = null;
         }
