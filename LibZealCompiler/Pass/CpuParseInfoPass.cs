@@ -75,9 +75,9 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitVectorsDeclaration([NotNull] ZealCpuParser.VectorsDeclarationContext context)
         {
-            foreach(var info in context.vectorInfo())
+            foreach (var info in context.vectorInfo())
             {
-                switch(info.vectorType.Text)
+                switch (info.vectorType.Text)
                 {
                     case "COP":
                         _driver.Vectors.COP = info.labelName.Text;
@@ -139,9 +139,9 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitAddress([NotNull] ZealCpuParser.AddressContext context)
         {
-            var argument = new NumberInstructionArgument(parseNumberLiteral(context.numberLiteral()));
+            var argument = parseNumberArgument(context.numberLiteral());
 
-            if (argument.Number > byte.MaxValue)
+            if (argument.Size == ArgumentSize.Word)
             {
                 _currentInstruction.AddressingMode = CpuAddressingMode.Absolute;
             }
@@ -155,8 +155,7 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitImmediate([NotNull] ZealCpuParser.ImmediateContext context)
         {
-            var argument = new NumberInstructionArgument(parseNumberLiteral(context.numberLiteral()));
-            _currentInstruction.Arguments.Add(argument);
+            _currentInstruction.Arguments.Add(parseNumberArgument(context.numberLiteral()));
 
             _currentInstruction.AddressingMode = CpuAddressingMode.Immediate;
         }
@@ -179,15 +178,44 @@ namespace Zeal.Compiler.Pass
 
         private int parseNumberLiteral(ZealCpuParser.NumberLiteralContext context)
         {
+            return parseNumberArgument(context).Number;
+        }
+
+        private NumberInstructionArgument parseNumberArgument(ZealCpuParser.NumberLiteralContext context)
+        {
             int result = 0;
+            ArgumentSize size = ArgumentSize.Byte;
 
             switch (context.Start.Type)
             {
                 case ZealCpuParser.HEX_LITERAL:
-                    Int32.TryParse(context.HEX_LITERAL().GetText().Substring(1), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out result);
-                    break;
+                    {
+                        string hexText = context.HEX_LITERAL().GetText().Substring(1);
+                        if (Int32.TryParse(hexText, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out result))
+                        {
+                            if (hexText.Length > 4 && hexText.Length <= 6)
+                            {
+                                size = ArgumentSize.LongWord;
+                            }
+                            else if (hexText.Length > 2 && hexText.Length <= 4)
+                            {
+                                size = ArgumentSize.Word;
+                            }
+                        }
+                        break;
+                    }
                 case ZealCpuParser.INTEGER_LITERAL:
-                    Int32.TryParse(context.INTEGER_LITERAL().GetText(), out result);
+                    if (Int32.TryParse(context.INTEGER_LITERAL().GetText(), out result))
+                    {
+                        if (result > ushort.MaxValue)
+                        {
+                            size = ArgumentSize.LongWord;
+                        }
+                        else if (result > byte.MaxValue)
+                        {
+                            size = ArgumentSize.Word;
+                        }
+                    }
                     break;
                 case ZealCpuParser.BINARY_LITERAL:
                     {
@@ -200,11 +228,19 @@ namespace Zeal.Compiler.Pass
                                 result |= (1 << i);
                             }
                         }
+                        if (binaryLiteral.Length > 16 && binaryLiteral.Length <= 24)
+                        {
+                            size = ArgumentSize.LongWord;
+                        }
+                        else if (binaryLiteral.Length > 8 && binaryLiteral.Length <= 16)
+                        {
+                            size = ArgumentSize.Word;
+                        }
                         break;
                     }
             }
 
-            return result;
+            return new NumberInstructionArgument(result, size);
         }
     }
 }

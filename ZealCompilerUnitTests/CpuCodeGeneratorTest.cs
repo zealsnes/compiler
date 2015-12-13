@@ -110,7 +110,14 @@ namespace Zeal.Compiler.UnitTests
             CpuInstructionStatement instruction = new CpuInstructionStatement();
             instruction.AddressingMode = CpuAddressingMode.Immediate;
             instruction.Opcode = opcodeEnum;
-            instruction.Arguments.Add(new NumberInstructionArgument(value));
+            if (value > byte.MaxValue)
+            {
+                instruction.Arguments.Add(new NumberInstructionArgument(value, ArgumentSize.Word));
+            }
+            else
+            {
+                instruction.Arguments.Add(new NumberInstructionArgument(value, ArgumentSize.Byte));
+            }
 
             List<CpuInstructionStatement> instructions = new List<CpuInstructionStatement>();
             instructions.Add(instruction);

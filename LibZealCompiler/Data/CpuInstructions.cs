@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Zeal.Compiler.CodeGeneration;
+﻿using Zeal.Compiler.CodeGeneration;
 
 namespace Zeal.Compiler.Data
 {

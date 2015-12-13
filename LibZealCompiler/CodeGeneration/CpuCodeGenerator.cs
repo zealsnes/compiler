@@ -39,7 +39,8 @@ namespace Zeal.Compiler.CodeGeneration
                         {
                             var numberArgument = instruction.Arguments[0] as NumberInstructionArgument;
                             _stream.WriteByte(opcode.Opcode);
-                            if (numberArgument.Number > byte.MaxValue)
+                            if (numberArgument.Size == ArgumentSize.Word
+                                || numberArgument.Size == ArgumentSize.LongWord)
                             {
                                 _stream.WriteByte((byte)(numberArgument.Number & 0xFF));
                                 _stream.WriteByte((byte)(numberArgument.Number >> 8));

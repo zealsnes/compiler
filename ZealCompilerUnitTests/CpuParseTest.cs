@@ -183,5 +183,35 @@ vectors
             var numberArgument = instructionStatement.Arguments[0] as NumberInstructionArgument;
             Assert.Equal(value, numberArgument.Number);
         }
+
+        [Theory]
+        [InlineData("lda #$1", 0x1, ArgumentSize.Byte)]
+        [InlineData("lda #$01", 0x1, ArgumentSize.Byte)]
+        [InlineData("lda #1", 0x1, ArgumentSize.Byte)]
+        [InlineData("lda #255", 255, ArgumentSize.Byte)]
+        [InlineData("lda #%0001", 1, ArgumentSize.Byte)]
+        [InlineData("lda #$0001", 0x1, ArgumentSize.Word)]
+        [InlineData("lda #$100", 0x100, ArgumentSize.Word)]
+        [InlineData("lda #$00FF", 0xFF, ArgumentSize.Word)]
+        [InlineData("lda #256", 256, ArgumentSize.Word)]
+        [InlineData("lda #%000000000001", 1, ArgumentSize.Word)]
+        [InlineData("sta $000001", 1, ArgumentSize.LongWord)]
+        [InlineData("sta 65537", 65537, ArgumentSize.LongWord)]
+        [InlineData("sta %100000000000000000000000", 0x800000, ArgumentSize.LongWord)]
+        [InlineData("sta %000000000000000000000001", 1, ArgumentSize.LongWord)]
+        public void ShouldParseArgumentSizeCorrectly(string instruction, int value, ArgumentSize size)
+        {
+            string input = String.Format(ProcedureTemplate, instruction);
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+
+            var argument = instructionStatement.Arguments[0] as NumberInstructionArgument;
+
+            Assert.Equal(value, argument.Number);
+            Assert.Equal(size, argument.Size);
+        }
     }
 }

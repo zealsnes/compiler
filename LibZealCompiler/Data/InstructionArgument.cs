@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Zeal.Compiler.Data
+﻿namespace Zeal.Compiler.Data
 {
     public class InstructionArgument
     {
@@ -13,10 +7,12 @@ namespace Zeal.Compiler.Data
     public class NumberInstructionArgument : InstructionArgument
     {
         public int Number { get; set; }
+        public ArgumentSize Size { get; set; }
 
-        public NumberInstructionArgument(int value)
+        public NumberInstructionArgument(int value, ArgumentSize size)
         {
             Number = value;
+            Size = size;
         }
     }
 }

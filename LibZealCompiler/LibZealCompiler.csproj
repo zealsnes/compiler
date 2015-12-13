@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="CodeGeneration\CpuCodeGenerator.cs" />
     <Compile Include="CodeGeneration\OpcodeAttribute.cs" />
+    <Compile Include="Data\ArgumentSize.cs" />
     <Compile Include="Data\CpuAddressingMode.cs" />
     <Compile Include="Data\CpuInstructions.cs" />
     <Compile Include="Data\CpuInstructionStatement.cs" />
