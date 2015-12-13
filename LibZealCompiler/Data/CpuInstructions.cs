@@ -5,12 +5,15 @@ namespace Zeal.Compiler.Data
     public enum CpuInstructions
     {
         [Opcode(CpuAddressingMode.Immediate, 0x69)]
+        [Opcode(CpuAddressingMode.Direct, 0x65)]
         adc,
 
         [Opcode(CpuAddressingMode.Immediate, 0x29)]
+        [Opcode(CpuAddressingMode.Direct, 0x25)]
         and,
 
         [Opcode(0x0A)]
+        [Opcode(CpuAddressingMode.Direct, 0x06)]
         asl,
 
         bcc,
@@ -18,6 +21,7 @@ namespace Zeal.Compiler.Data
         beq,
 
         [Opcode(CpuAddressingMode.Immediate, 0x89)]
+        [Opcode(CpuAddressingMode.Direct, 0x24)]
         bit,
 
         bmi,
@@ -45,17 +49,21 @@ namespace Zeal.Compiler.Data
         clv,
 
         [Opcode(CpuAddressingMode.Immediate, 0xC9)]
+        [Opcode(CpuAddressingMode.Direct, 0xC5)]
         cmp,
 
         cop,
 
         [Opcode(CpuAddressingMode.Immediate, 0xE0)]
+        [Opcode(CpuAddressingMode.Direct, 0xE4)]
         cpx,
 
         [Opcode(CpuAddressingMode.Immediate, 0xC0)]
+        [Opcode(CpuAddressingMode.Direct, 0xC4)]
         cpy,
 
         [Opcode(0x3A)]
+        [Opcode(CpuAddressingMode.Direct, 0xC6)]
         dec,
 
         [Opcode(0xCA)]
@@ -65,9 +73,11 @@ namespace Zeal.Compiler.Data
         dey,
 
         [Opcode(CpuAddressingMode.Immediate, 0x49)]
+        [Opcode(CpuAddressingMode.Direct, 0x45)]
         eor,
 
         [Opcode(0x1A)]
+        [Opcode(CpuAddressingMode.Direct, 0xE6)]
         inc,
 
         [Opcode(0xE8)]
@@ -82,15 +92,19 @@ namespace Zeal.Compiler.Data
         jsl,
 
         [Opcode(CpuAddressingMode.Immediate, 0xA9)]
+        [Opcode(CpuAddressingMode.Direct, 0xA5)]
         lda,
 
         [Opcode(CpuAddressingMode.Immediate, 0xA2)]
+        [Opcode(CpuAddressingMode.Direct, 0xA6)]
         ldx,
 
         [Opcode(CpuAddressingMode.Immediate, 0xA0)]
+        [Opcode(CpuAddressingMode.Direct, 0xA4)]
         ldy,
 
         [Opcode(0x4A)]
+        [Opcode(CpuAddressingMode.Direct, 0x46)]
         lsr,
 
         mvn,
@@ -100,6 +114,7 @@ namespace Zeal.Compiler.Data
         nop,
 
         [Opcode(CpuAddressingMode.Immediate, 0x09)]
+        [Opcode(CpuAddressingMode.Direct, 0x05)]
         ora,
 
         pea,
@@ -148,9 +163,11 @@ namespace Zeal.Compiler.Data
         rep,
 
         [Opcode(0x2A)]
+        [Opcode(CpuAddressingMode.Direct, 0x26)]
         rol,
 
         [Opcode(0x6A)]
+        [Opcode(CpuAddressingMode.Direct, 0x66)]
         ror,
 
         [Opcode(0x40)]
@@ -163,6 +180,7 @@ namespace Zeal.Compiler.Data
         rts,
 
         [Opcode(CpuAddressingMode.Immediate, 0xE9)]
+        [Opcode(CpuAddressingMode.Direct, 0xE5)]
         sbc,
 
         [Opcode(0x38)]
@@ -177,13 +195,19 @@ namespace Zeal.Compiler.Data
         [Opcode(CpuAddressingMode.Immediate, 0xE2)]
         sep,
 
+        [Opcode(CpuAddressingMode.Direct, 0x85)]
         sta,
 
         [Opcode(0xDB)]
         stp,
 
+        [Opcode(CpuAddressingMode.Direct, 0x86)]
         stx,
+
+        [Opcode(CpuAddressingMode.Direct, 0x84)]
         sty,
+
+        [Opcode(CpuAddressingMode.Direct, 0x64)]
         stz,
 
         [Opcode(0xAA)]
@@ -201,7 +225,10 @@ namespace Zeal.Compiler.Data
         [Opcode(0x7B)]
         tdc,
 
+        [Opcode(CpuAddressingMode.Direct, 0x14)]
         trb,
+
+        [Opcode(CpuAddressingMode.Direct, 0x04)]
         tsb,
 
         [Opcode(0x3B)]

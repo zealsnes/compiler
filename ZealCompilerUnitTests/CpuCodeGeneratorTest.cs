@@ -131,5 +131,50 @@ namespace Zeal.Compiler.UnitTests
             Assert.Equal((byte)(value & 0xFF), memoryStream.GetBuffer()[1]);
             Assert.Equal((byte)(value >> 8), memoryStream.GetBuffer()[2]);
         }
+
+        [Theory]
+        // Enum, opcode, value
+        [InlineData(CpuInstructions.adc, 0x65, 0x34)]
+        [InlineData(CpuInstructions.and, 0x25, 0x34)]
+        [InlineData(CpuInstructions.asl, 0x06, 0x34)]
+        [InlineData(CpuInstructions.bit, 0x24, 0x34)]
+        [InlineData(CpuInstructions.cmp, 0xC5, 0x34)]
+        [InlineData(CpuInstructions.cpx, 0xE4, 0x34)]
+        [InlineData(CpuInstructions.cpy, 0xC4, 0x34)]
+        [InlineData(CpuInstructions.dec, 0xC6, 0x34)]
+        [InlineData(CpuInstructions.eor, 0x45, 0x34)]
+        [InlineData(CpuInstructions.inc, 0xE6, 0x34)]
+        [InlineData(CpuInstructions.lda, 0xA5, 0x34)]
+        [InlineData(CpuInstructions.ldx, 0xA6, 0x34)]
+        [InlineData(CpuInstructions.ldy, 0xA4, 0x34)]
+        [InlineData(CpuInstructions.lsr, 0x46, 0x34)]
+        [InlineData(CpuInstructions.ora, 0x05, 0x34)]
+        [InlineData(CpuInstructions.rol, 0x26, 0x34)]
+        [InlineData(CpuInstructions.ror, 0x66, 0x34)]
+        [InlineData(CpuInstructions.sbc, 0xE5, 0x34)]
+        [InlineData(CpuInstructions.sta, 0x85, 0x34)]
+        [InlineData(CpuInstructions.stx, 0x86, 0x34)]
+        [InlineData(CpuInstructions.sty, 0x84, 0x34)]
+        [InlineData(CpuInstructions.stz, 0x64, 0x34)]
+        [InlineData(CpuInstructions.trb, 0x14, 0x34)]
+        [InlineData(CpuInstructions.tsb, 0x04, 0x34)]
+        public void ShouldGenerateDirectInstruction(CpuInstructions opcodeEnum, byte finalOpcode, int value)
+        {
+            CpuInstructionStatement instruction = new CpuInstructionStatement();
+            instruction.AddressingMode = CpuAddressingMode.Direct;
+            instruction.Opcode = opcodeEnum;
+            instruction.Arguments.Add(new NumberInstructionArgument(value, ArgumentSize.Byte));
+
+            List<CpuInstructionStatement> instructions = new List<CpuInstructionStatement>();
+            instructions.Add(instruction);
+
+            MemoryStream memoryStream = new MemoryStream(8);
+            CpuCodeGenerator generator = new CpuCodeGenerator(memoryStream);
+            generator.Instructions = instructions;
+            generator.Generate();
+
+            Assert.Equal(finalOpcode, memoryStream.GetBuffer()[0]);
+            Assert.Equal((byte)(value & 0xFF), memoryStream.GetBuffer()[1]);
+        }
     }
 }

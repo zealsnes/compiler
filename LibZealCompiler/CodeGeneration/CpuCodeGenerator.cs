@@ -36,6 +36,7 @@ namespace Zeal.Compiler.CodeGeneration
                         _stream.WriteByte(opcode.Opcode);
                         break;
                     case CpuAddressingMode.Immediate:
+                    case CpuAddressingMode.Direct:
                         {
                             var numberArgument = instruction.Arguments[0] as NumberInstructionArgument;
                             _stream.WriteByte(opcode.Opcode);

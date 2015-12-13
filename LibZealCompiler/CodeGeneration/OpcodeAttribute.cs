@@ -3,6 +3,7 @@ using Zeal.Compiler.Data;
 
 namespace Zeal.Compiler.CodeGeneration
 {
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class OpcodeAttribute : Attribute
     {
         public byte Opcode { get; private set; }
