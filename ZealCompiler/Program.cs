@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Zeal.Compiler.CodeGeneration;
+using Zeal.Compiler.Data;
 using Zeal.Compiler.Parser;
 
 namespace ZealCompiler
@@ -34,6 +37,43 @@ namespace ZealCompiler
 
                 Console.Read();
                 return 1;
+            }
+
+            FileStream outputRom = new FileStream(Path.ChangeExtension(args[0], ".sfc"), FileMode.Create);
+
+            Dictionary<string, long> scopePositions = new Dictionary<string, long>();
+
+            CpuCodeGenerator codeGenerator = new CpuCodeGenerator(outputRom);
+            foreach (var scope in driver.Scopes)
+            {
+                scopePositions.Add(scope.Name, outputRom.Position);
+
+                List<CpuInstructionStatement> instructions = new List<CpuInstructionStatement>();
+
+                foreach (var statement in scope.Statements)
+                {
+                    if (statement is CpuInstructionStatement)
+                    {
+                        instructions.Add((CpuInstructionStatement)statement);
+                    }
+                }
+
+                codeGenerator.Instructions = instructions;
+                codeGenerator.Generate();
+            }
+
+            SfcRomWriter romWriter = new SfcRomWriter(outputRom);
+            romWriter.Driver = driver;
+            romWriter.VectorsPosition = scopePositions;
+            romWriter.Write();
+
+            outputRom.Close();
+
+            using (FileStream newRom = new FileStream(Path.ChangeExtension(args[0], ".sfc"), FileMode.Open))
+            {
+                SfcRomWriter checksumWriter = new SfcRomWriter(newRom);
+                checksumWriter.Driver = driver;
+                checksumWriter.ComputeChecksum();
             }
 
             return 0;

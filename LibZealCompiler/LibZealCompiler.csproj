@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="CodeGeneration\CpuCodeGenerator.cs" />
     <Compile Include="CodeGeneration\OpcodeAttribute.cs" />
+    <Compile Include="CodeGeneration\SfcRomWriter.cs" />
     <Compile Include="Data\ArgumentSize.cs" />
     <Compile Include="Data\CpuAddressingMode.cs" />
     <Compile Include="Data\CpuInstructions.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Data\Scope.cs" />
     <Compile Include="Data\Statement.cs" />
     <Compile Include="Data\Vectors.cs" />
+    <Compile Include="Helper\CpuAddressConverter.cs" />
     <Compile Include="Helper\EnumHelper.cs" />
     <Compile Include="Parser\ErrorMessage.cs" />
     <Compile Include="Pass\CpuParseInfoPass.cs" />
