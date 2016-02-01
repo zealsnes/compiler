@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Zeal.Compiler.Data;
@@ -27,11 +28,13 @@ namespace Zeal.Compiler.Parser
             _driver.Errors.Add(errorMessage);
         }
     }
+
     public class ZealCpuDriver
     {
         private RomHeader _header = new RomHeader();
         private Vectors _vectors = new Vectors();
         private List<Scope> _scopes = new List<Scope>();
+        private Scope _globalScope = new Scope();
         private List<ErrorMessage> _errors = new List<ErrorMessage>();
 
         private ZealCpuLexer _lexer;
@@ -54,11 +57,11 @@ namespace Zeal.Compiler.Parser
             }
         }
 
-        public List<Scope> Scopes
+        public Scope GlobalScope
         {
             get
             {
-                return _scopes;
+                return _globalScope;
             }
         }
 
@@ -95,6 +98,27 @@ namespace Zeal.Compiler.Parser
 
             ParseTreeWalker walker = new ParseTreeWalker();
             walker.Walk(new CpuParseInfoPass(this), rootTree);
+        }
+
+        public void ResolveLabels()
+        {
+            long physicalAddress = 0;
+
+            Scope parentScope = _globalScope;
+            foreach (var scope in parentScope.Children)
+            {
+                parentScope.Labels[scope.Name] = physicalAddress;
+
+                foreach (var instruction in scope.Statements)
+                {
+                    if (!String.IsNullOrEmpty(instruction.AssociatedLabel))
+                    {
+                        scope.Labels[instruction.AssociatedLabel] = physicalAddress;
+                    }
+
+                    physicalAddress += instruction.ComputeSize();
+                }
+            }
         }
     }
 }

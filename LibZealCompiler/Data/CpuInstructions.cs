@@ -20,10 +20,13 @@ namespace Zeal.Compiler.Data
         asl,
 
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0x90)]
         bcc,
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0xB0)]
         bcs,
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0xF0)]
         beq,
 
         [Opcode(CpuAddressingMode.Immediate, 0x89)]
@@ -32,15 +35,19 @@ namespace Zeal.Compiler.Data
         bit,
 
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0x30)]
         bmi,
 
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0xD0)]
         bne,
 
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0x10)]
         bpl,
 
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0x80)]
         bra,
 
         [Opcode(0x00)]
@@ -49,9 +56,11 @@ namespace Zeal.Compiler.Data
         brl,
 
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0x50)]
         bvc,
 
         [CpuAssumeAddressing(CpuAddressingMode.Relative)]
+        [Opcode(CpuAddressingMode.Relative, 0x70)]
         bvs,
 
         [Opcode(0x18)]

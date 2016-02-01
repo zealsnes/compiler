@@ -25,6 +25,7 @@ namespace ZealCompiler
 
             ZealCpuDriver driver = new ZealCpuDriver(args[0]);
             driver.Parse();
+            driver.ResolveLabels();
 
             if (driver.Errors.Count > 0)
             {
@@ -41,12 +42,12 @@ namespace ZealCompiler
 
             FileStream outputRom = new FileStream(Path.ChangeExtension(args[0], ".sfc"), FileMode.Create);
 
-            Dictionary<string, long> scopePositions = new Dictionary<string, long>();
-
             CpuCodeGenerator codeGenerator = new CpuCodeGenerator(outputRom);
-            foreach (var scope in driver.Scopes)
+            codeGenerator.Header = driver.Header;
+
+            foreach (var scope in driver.GlobalScope.Children)
             {
-                scopePositions.Add(scope.Name, outputRom.Position);
+                codeGenerator.Scope = scope;
 
                 List<CpuInstructionStatement> instructions = new List<CpuInstructionStatement>();
 
@@ -64,7 +65,6 @@ namespace ZealCompiler
 
             SfcRomWriter romWriter = new SfcRomWriter(outputRom);
             romWriter.Driver = driver;
-            romWriter.VectorsPosition = scopePositions;
             romWriter.Write();
 
             outputRom.Close();

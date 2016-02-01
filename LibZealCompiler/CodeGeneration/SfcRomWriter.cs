@@ -27,7 +27,13 @@ namespace Zeal.Compiler.CodeGeneration
 
         public ZealCpuDriver Driver { get; set; }
 
-        public Dictionary<string, long> VectorsPosition { get; set; }
+        private Scope GlobalScope
+        {
+            get
+            {
+                return Driver.GlobalScope;
+            }
+        }
 
         public SfcRomWriter(Stream stream)
         {
@@ -145,13 +151,13 @@ namespace Zeal.Compiler.CodeGeneration
                 // ==========================
 
                 // COP vector
-                int cop = (int)VectorsPosition[vectors.COP];
+                int cop = (int)GlobalScope.AddressFor(vectors.COP);
                 cop = CpuAddressConverter.PhysicalToRAM(cop, map, speed);
 
                 binWriter.Write((ushort)cop);
 
                 // BRK vector
-                int brk = (int)VectorsPosition[vectors.BRK];
+                int brk = (int)GlobalScope.AddressFor(vectors.BRK);
                 brk = CpuAddressConverter.PhysicalToRAM(brk, map, speed);
 
                 binWriter.Write((ushort)brk);
@@ -160,19 +166,19 @@ namespace Zeal.Compiler.CodeGeneration
                 binWriter.Write((ushort)brk);
 
                 // NMI vector
-                int nmi = (int)VectorsPosition[vectors.NMI];
+                int nmi = (int)GlobalScope.AddressFor(vectors.NMI);
                 nmi = CpuAddressConverter.PhysicalToRAM(nmi, map, speed);
 
                 binWriter.Write((ushort)nmi);
 
                 // RESET vector
-                int reset = (int)VectorsPosition[vectors.Reset];
+                int reset = (int)GlobalScope.AddressFor(vectors.Reset);
                 reset = CpuAddressConverter.PhysicalToRAM(reset, map, speed);
 
                 binWriter.Write((ushort)reset);
 
                 // IRQ vector
-                int irq = (int)VectorsPosition[vectors.IRQ];
+                int irq = (int)GlobalScope.AddressFor(vectors.IRQ);
                 irq = CpuAddressConverter.PhysicalToRAM(irq, map, speed);
 
                 binWriter.Write((ushort)irq);

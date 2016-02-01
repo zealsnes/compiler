@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Zeal.Compiler.Data;
@@ -13,6 +14,18 @@ namespace Zeal.Compiler.CodeGeneration
         public List<CpuInstructionStatement> Instructions
         {
             get;
+            set;
+        }
+
+        public Scope Scope
+        {
+            private get;
+            set;
+        }
+
+        public RomHeader Header
+        {
+            private get;
             set;
         }
 
@@ -38,18 +51,18 @@ namespace Zeal.Compiler.CodeGeneration
                     case CpuAddressingMode.Immediate:
                     case CpuAddressingMode.Direct:
                     case CpuAddressingMode.Absolute:
+                    case CpuAddressingMode.Relative:
                         {
                             _stream.WriteByte(opcode.Opcode);
 
                             if (instruction.Arguments[0] is NumberInstructionArgument)
                             {
                                 var numberArgument = instruction.Arguments[0] as NumberInstructionArgument;
-                               
+
                                 if (numberArgument.Size == ArgumentSize.Word
                                     || numberArgument.Size == ArgumentSize.LongWord)
                                 {
-                                    _stream.WriteByte((byte)(numberArgument.Number & 0xFF));
-                                    _stream.WriteByte((byte)(numberArgument.Number >> 8));
+                                    writeWord(numberArgument.Number);
                                 }
                                 else
                                 {
@@ -59,11 +72,29 @@ namespace Zeal.Compiler.CodeGeneration
                             else if (instruction.Arguments[0] is LabelInstructionArgument)
                             {
                                 var labelArgument = instruction.Arguments[0] as LabelInstructionArgument;
+                                long labelPhysicalAddress = Scope.AddressFor(labelArgument.Label);
+
+                                if (instruction.AddressingMode == CpuAddressingMode.Relative)
+                                {
+                                    byte relativeAddress = Convert.ToByte((labelPhysicalAddress - (_stream.Position + 1)) & 0xFF);
+                                    _stream.WriteByte(relativeAddress);
+                                }
+                                else if (instruction.AddressingMode == CpuAddressingMode.Absolute)
+                                {
+                                    int ramAddress = CpuAddressConverter.PhysicalToRAM((int)labelPhysicalAddress, Header.MapMode, Header.RomSpeed);
+                                    writeWord(ramAddress & 0xFFFF);
+                                }
                             }
                             break;
                         }
                 }
             }
+        }
+
+        private void writeWord(int number)
+        {
+            _stream.WriteByte((byte)(number & 0xFF));
+            _stream.WriteByte((byte)(number >> 8));
         }
     }
 }

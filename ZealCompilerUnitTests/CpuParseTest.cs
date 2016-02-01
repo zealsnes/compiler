@@ -72,8 +72,8 @@ vectors
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            Assert.Equal("Test", driver.Scopes[0].Name);
-            Assert.Equal(ScopeType.Procedure, driver.Scopes[0].Type);
+            Assert.Equal("Test", driver.GlobalScope.Children[0].Name);
+            Assert.Equal(ScopeType.Procedure, driver.GlobalScope.Children[0].Type);
         }
 
         [Fact]
@@ -85,8 +85,8 @@ vectors
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            Assert.Equal("EmptyVector", driver.Scopes[0].Name);
-            Assert.Equal(ScopeType.Interrupt, driver.Scopes[0].Type);
+            Assert.Equal("EmptyVector", driver.GlobalScope.Children[0].Name);
+            Assert.Equal(ScopeType.Interrupt, driver.GlobalScope.Children[0].Type);
         }
 
         [Fact]
@@ -103,10 +103,10 @@ vectors
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            var cpuInstruction = driver.Scopes[0].Statements[driver.Scopes[0].Statements.Count - 1] as CpuInstructionStatement;
+            var cpuInstruction = driver.GlobalScope.Children[0].Statements[driver.GlobalScope.Children[0].Statements.Count - 1] as CpuInstructionStatement;
 
-            Assert.Equal("NMI", driver.Scopes[0].Name);
-            Assert.Equal(ScopeType.Interrupt, driver.Scopes[0].Type);
+            Assert.Equal("NMI", driver.GlobalScope.Children[0].Name);
+            Assert.Equal(ScopeType.Interrupt, driver.GlobalScope.Children[0].Type);
             Assert.Equal(CpuInstructions.rti, cpuInstruction.Opcode);
             Assert.Equal(CpuAddressingMode.Implied, cpuInstruction.AddressingMode);
         }
@@ -130,8 +130,8 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            var thirdInstruction = driver.Scopes[0].Statements[2];
-            var fiveInstruction = driver.Scopes[0].Statements[4];
+            var thirdInstruction = driver.GlobalScope.Children[0].Statements[2];
+            var fiveInstruction = driver.GlobalScope.Children[0].Statements[4];
 
             Assert.Equal("mainLoop", thirdInstruction.AssociatedLabel);
             Assert.Equal("exit", fiveInstruction.AssociatedLabel);
@@ -148,7 +148,7 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            var instruction = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            var instruction = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
             var argument = instruction.Arguments[0] as LabelInstructionArgument;
 
             Assert.Equal("mainLoop", argument.Label);
@@ -164,7 +164,7 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            var instruction = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            var instruction = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
 
             Assert.Equal(CpuAddressingMode.Absolute, instruction.AddressingMode);
         }
@@ -186,7 +186,7 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            var instruction = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            var instruction = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
 
             Assert.Equal(CpuAddressingMode.Relative, instruction.AddressingMode);
         }
@@ -228,7 +228,7 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            CpuInstructionStatement instructionStatement = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
             Assert.Equal(opcodeEnum, instructionStatement.Opcode);
             Assert.Equal(CpuAddressingMode.Implied, instructionStatement.AddressingMode);
         }
@@ -243,7 +243,7 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            CpuInstructionStatement instructionStatement = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
             Assert.Equal(opcodeEnum, instructionStatement.Opcode);
             Assert.Equal(CpuAddressingMode.Immediate, instructionStatement.AddressingMode);
 
@@ -261,7 +261,7 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            CpuInstructionStatement instructionStatement = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
             Assert.Equal(opcodeEnum, instructionStatement.Opcode);
             Assert.Equal(CpuAddressingMode.Direct, instructionStatement.AddressingMode);
 
@@ -278,7 +278,7 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            CpuInstructionStatement instructionStatement = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
             Assert.Equal(opcodeEnum, instructionStatement.Opcode);
             Assert.Equal(CpuAddressingMode.Absolute, instructionStatement.AddressingMode);
 
@@ -308,12 +308,47 @@ exit:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            CpuInstructionStatement instructionStatement = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            CpuInstructionStatement instructionStatement = driver.GlobalScope.Children[0].Statements[0] as CpuInstructionStatement;
 
             var argument = instructionStatement.Arguments[0] as NumberInstructionArgument;
 
             Assert.Equal(value, argument.Number);
             Assert.Equal(size, argument.Size);
+        }
+
+        [Fact]
+        public void ShoulResolveLabelsToAddress()
+        {
+            string input = @"procedure Test
+{
+    php
+    pha
+
+mainLoop:
+    lda $2007
+    jmp mainLoop
+    bra exit
+
+exit:
+    rts
+}
+
+interrupt EmptyVector
+{
+}
+";
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            driver.ResolveLabels();
+
+            Assert.Equal(0, driver.GlobalScope.AddressFor("Test"));
+            Assert.Equal(11, driver.GlobalScope.AddressFor("EmptyVector"));
+
+            var testScope = driver.GlobalScope.Children[0];
+            Assert.Equal(2, testScope.AddressFor("mainLoop"));
+            Assert.Equal(10, testScope.AddressFor("exit"));
         }
     }
 }

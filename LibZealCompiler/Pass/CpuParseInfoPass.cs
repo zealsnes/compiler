@@ -110,7 +110,7 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitProcedureDeclaration([NotNull] ZealCpuParser.ProcedureDeclarationContext context)
         {
-            _driver.Scopes.Add(_currentScope);
+            _driver.GlobalScope.Add(_currentScope);
             _currentScope = null;
         }
 
@@ -129,7 +129,7 @@ namespace Zeal.Compiler.Pass
 
             _currentScope.Statements.Add(rtiInstruction);
 
-            _driver.Scopes.Add(_currentScope);
+            _driver.GlobalScope.Add(_currentScope);
             _currentScope = null;
         }
 

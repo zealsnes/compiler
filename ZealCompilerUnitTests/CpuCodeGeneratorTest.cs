@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xunit;
 using Zeal.Compiler.CodeGeneration;
 using Zeal.Compiler.Data;
+using Zeal.Compiler.Parser;
+using Zeal.Compiler.UnitTests.Extensions;
 
 namespace Zeal.Compiler.UnitTests
 {
@@ -223,6 +226,73 @@ namespace Zeal.Compiler.UnitTests
             Assert.Equal(finalOpcode, memoryStream.GetBuffer()[0]);
             Assert.Equal((byte)(value & 0xFF), memoryStream.GetBuffer()[1]);
             Assert.Equal((byte)(value >> 8), memoryStream.GetBuffer()[2]);
+        }
+
+        [Fact]
+        public void ShouldGenerateRelativeInstructionsWithLabel()
+        {
+            string input = @"procedure Test
+{
+    php
+
+backwardBranch:
+    sec
+    bvs backwardBranch
+    lda #$03
+    bra forwardBranch
+    tax
+    tay
+
+forwardBranch:
+    rts
+}
+";
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            driver.ResolveLabels();
+
+            MemoryStream memoryStream = new MemoryStream(32);
+            CpuCodeGenerator generator = new CpuCodeGenerator(memoryStream);
+            generator.Instructions = driver.GlobalScope.Children[0].Statements.Where(x => x is CpuInstructionStatement).Select(x => x as CpuInstructionStatement).ToList();
+            generator.Scope = driver.GlobalScope.Children[0];
+            generator.Generate();
+
+            Assert.Equal(0xFD, memoryStream.GetBuffer()[3]);
+            Assert.Equal(0x02, memoryStream.GetBuffer()[7]);
+        }
+
+        [Fact]
+        public void ShouldGenerateAbsoluteInstructionsWithLabel()
+        {
+            string input = @"procedure Test
+{
+    php
+
+mainLoop:
+    jmp mainLoop
+}
+";
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            driver.ResolveLabels();
+
+            RomHeader fakeHeader = new RomHeader();
+            fakeHeader.MapMode = MapMode.LoROM;
+            fakeHeader.RomSpeed = RomSpeed.SlowROM;
+
+            MemoryStream memoryStream = new MemoryStream(32);
+            CpuCodeGenerator generator = new CpuCodeGenerator(memoryStream);
+            generator.Instructions = driver.GlobalScope.Children[0].Statements.Where(x => x is CpuInstructionStatement).Select(x => x as CpuInstructionStatement).ToList();
+            generator.Scope = driver.GlobalScope.Children[0];
+            generator.Header = fakeHeader;
+            generator.Generate();
+
+            Assert.Equal(0x01, memoryStream.GetBuffer()[2]);
+            Assert.Equal(0x80, memoryStream.GetBuffer()[3]);
         }
     }
 }

@@ -8,5 +8,10 @@
         {
             AssociatedLabel = null;
         }
+
+        public virtual long ComputeSize()
+        {
+            return 0;
+        }
     }
 }
