@@ -4,6 +4,7 @@ using System;
 using System.Globalization;
 using Zeal.Compiler.Data;
 using Zeal.Compiler.Parser;
+using Zeal.Compiler.Helper;
 
 namespace Zeal.Compiler.Pass
 {
@@ -137,7 +138,7 @@ namespace Zeal.Compiler.Pass
             _currentInstruction = new CpuInstructionStatement();
 
             CpuInstructions opcode;
-            if (Enum.TryParse<CpuInstructions>(context.opcode.Text, out opcode))
+            if (Enum.TryParse<CpuInstructions>(context.opcode().GetText(), out opcode))
             {
                 _currentInstruction.Opcode = opcode;
             }
@@ -145,25 +146,45 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitAddress([NotNull] ZealCpuParser.AddressContext context)
         {
-            var argument = parseNumberArgument(context.numberLiteral());
+            var numberLiteral = context.argumentLiteral().numberLiteral();
+            InstructionArgument argument = null;
 
-            if (argument.Size == ArgumentSize.Word)
+            if (numberLiteral != null)
             {
+                argument = parseNumberArgument(numberLiteral);
+
+                if (((NumberInstructionArgument)argument).Size == ArgumentSize.Word)
+                {
+                    _currentInstruction.AddressingMode = CpuAddressingMode.Absolute;
+                }
+                else
+                {
+                    _currentInstruction.AddressingMode = CpuAddressingMode.Direct;
+                }
+            }
+
+            var identifierLitteral = context.argumentLiteral().IDENTIFIER();
+            if (identifierLitteral != null)
+            {
+                argument = new LabelInstructionArgument(identifierLitteral.GetText());
                 _currentInstruction.AddressingMode = CpuAddressingMode.Absolute;
             }
-            else
-            {
-                _currentInstruction.AddressingMode = CpuAddressingMode.Direct;
-            }
 
-            _currentInstruction.Arguments.Add(argument);
+            if (argument != null)
+            {
+                _currentInstruction.Arguments.Add(argument);
+            }
         }
 
         public override void ExitImmediate([NotNull] ZealCpuParser.ImmediateContext context)
         {
-            _currentInstruction.Arguments.Add(parseNumberArgument(context.numberLiteral()));
+            var numberLiteral = context.numberLiteral();
+            if (numberLiteral != null)
+            {
+                _currentInstruction.Arguments.Add(parseNumberArgument(numberLiteral));
 
-            _currentInstruction.AddressingMode = CpuAddressingMode.Immediate;
+                _currentInstruction.AddressingMode = CpuAddressingMode.Immediate;
+            }
         }
 
         public override void ExitInstructionStatement([NotNull] ZealCpuParser.InstructionStatementContext context)
@@ -171,6 +192,18 @@ namespace Zeal.Compiler.Pass
             if (_currentInstruction.Arguments.Count == 0)
             {
                 _currentInstruction.AddressingMode = CpuAddressingMode.Implied;
+            }
+
+            var assumeAddressingAttribute = _currentInstruction.Opcode.GetAttribute<CpuAssumeAddressingAttribute>();
+            if (assumeAddressingAttribute != null)
+            {
+                _currentInstruction.AddressingMode = assumeAddressingAttribute.Addressing;
+            }
+
+            var labelContext = context.label();
+            if (labelContext != null)
+            {
+                _currentInstruction.AssociatedLabel = labelContext.IDENTIFIER().GetText();
             }
 
             _currentScope.Statements.Add(_currentInstruction);

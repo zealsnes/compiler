@@ -1,4 +1,6 @@
-﻿namespace Zeal.Compiler.Data
+﻿using System.IO;
+
+namespace Zeal.Compiler.Data
 {
     public class InstructionArgument
     {
@@ -13,6 +15,16 @@
         {
             Number = value;
             Size = size;
+        }
+    }
+
+    public class LabelInstructionArgument : InstructionArgument
+    {
+        public string Label { get; set; }
+
+        public LabelInstructionArgument(string label)
+        {
+            Label = label;
         }
     }
 }

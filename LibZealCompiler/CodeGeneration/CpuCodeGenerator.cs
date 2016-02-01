@@ -9,7 +9,7 @@ namespace Zeal.Compiler.CodeGeneration
     public class CpuCodeGenerator
     {
         private Stream _stream;
-        
+
         public List<CpuInstructionStatement> Instructions
         {
             get;
@@ -39,17 +39,26 @@ namespace Zeal.Compiler.CodeGeneration
                     case CpuAddressingMode.Direct:
                     case CpuAddressingMode.Absolute:
                         {
-                            var numberArgument = instruction.Arguments[0] as NumberInstructionArgument;
                             _stream.WriteByte(opcode.Opcode);
-                            if (numberArgument.Size == ArgumentSize.Word
-                                || numberArgument.Size == ArgumentSize.LongWord)
+
+                            if (instruction.Arguments[0] is NumberInstructionArgument)
                             {
-                                _stream.WriteByte((byte)(numberArgument.Number & 0xFF));
-                                _stream.WriteByte((byte)(numberArgument.Number >> 8));
+                                var numberArgument = instruction.Arguments[0] as NumberInstructionArgument;
+                               
+                                if (numberArgument.Size == ArgumentSize.Word
+                                    || numberArgument.Size == ArgumentSize.LongWord)
+                                {
+                                    _stream.WriteByte((byte)(numberArgument.Number & 0xFF));
+                                    _stream.WriteByte((byte)(numberArgument.Number >> 8));
+                                }
+                                else
+                                {
+                                    _stream.WriteByte((byte)numberArgument.Number);
+                                }
                             }
-                            else
+                            else if (instruction.Arguments[0] is LabelInstructionArgument)
                             {
-                                _stream.WriteByte((byte)numberArgument.Number);
+                                var labelArgument = instruction.Arguments[0] as LabelInstructionArgument;
                             }
                             break;
                         }

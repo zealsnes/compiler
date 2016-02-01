@@ -1,7 +1,7 @@
 ﻿using System;
 using Zeal.Compiler.Data;
 
-namespace Zeal.Compiler.CodeGeneration
+namespace Zeal.Compiler.Data
 {
     [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class OpcodeAttribute : Attribute

@@ -111,6 +111,86 @@ vectors
             Assert.Equal(CpuAddressingMode.Implied, cpuInstruction.AddressingMode);
         }
 
+        [Fact]
+        public void ShouldParseLabel()
+        {
+            string input = @"procedure Test
+{
+    php
+    pha
+
+mainLoop:
+    lda $2007
+    jmp mainLoop
+
+exit:
+    rts
+}";
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            var thirdInstruction = driver.Scopes[0].Statements[2];
+            var fiveInstruction = driver.Scopes[0].Statements[4];
+
+            Assert.Equal("mainLoop", thirdInstruction.AssociatedLabel);
+            Assert.Equal("exit", fiveInstruction.AssociatedLabel);
+        }
+
+        [Fact]
+        public void ShouldParseLabelArgument()
+        {
+            string input = @"procedure Test
+{
+    jmp mainLoop
+}";
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            var instruction = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+            var argument = instruction.Arguments[0] as LabelInstructionArgument;
+
+            Assert.Equal("mainLoop", argument.Label);
+        }
+
+        [Theory]
+        [InlineData("jmp mainLoop")]
+        [InlineData("jsr SomeFunction")]
+        public void ShouldMarkAbsoluteLabelArgument(string instructionText)
+        {
+            string input = String.Format(ProcedureTemplate, instructionText);
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            var instruction = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+
+            Assert.Equal(CpuAddressingMode.Absolute, instruction.AddressingMode);
+        }
+
+        [Theory]
+        [InlineData("bcc Label")]
+        [InlineData("bcs Label")]
+        [InlineData("beq Label")]
+        [InlineData("bmi Label")]
+        [InlineData("bne Label")]
+        [InlineData("bpl Label")]
+        [InlineData("bra Label")]
+        [InlineData("bvc Label")]
+        [InlineData("bvs Label")]
+        public void ShouldMarkRelativeLabelArgument(string instructionText)
+        {
+            string input = String.Format(ProcedureTemplate, instructionText);
+
+            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
+            driver.Parse();
+
+            var instruction = driver.Scopes[0].Statements[0] as CpuInstructionStatement;
+
+            Assert.Equal(CpuAddressingMode.Relative, instruction.AddressingMode);
+        }
+
         [Theory]
         [InlineData("clc", CpuInstructions.clc)]
         [InlineData("cld", CpuInstructions.cld)]

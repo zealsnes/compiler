@@ -12,6 +12,7 @@ namespace Zeal.Compiler.Data
     public class Scope
     {
         private List<Statement> _statements = new List<Statement>();
+        private Dictionary<string, long> _labels = new Dictionary<string, long>();
 
         public string Name { get; set; }
         public ScopeType Type { get; set; }
@@ -21,6 +22,14 @@ namespace Zeal.Compiler.Data
             get
             {
                 return _statements;
+            }
+        }
+
+        public Dictionary<string, long> Labels
+        {
+            get
+            {
+                return _labels;
             }
         }
     }

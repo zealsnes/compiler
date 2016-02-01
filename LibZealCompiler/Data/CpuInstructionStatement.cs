@@ -16,5 +16,10 @@ namespace Zeal.Compiler.Data
                 return _arguments;
             }
         }
+
+        public CpuInstructionStatement()
+            : base()
+        {
+        }
     }
 }

@@ -48,7 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeGeneration\CpuCodeGenerator.cs" />
-    <Compile Include="CodeGeneration\OpcodeAttribute.cs" />
+    <Compile Include="Data\CpuAssumeAddressingAttribute.cs" />
+    <Compile Include="Data\OpcodeAttribute.cs" />
     <Compile Include="CodeGeneration\SfcRomWriter.cs" />
     <Compile Include="Data\ArgumentSize.cs" />
     <Compile Include="Data\CpuAddressingMode.cs" />
