@@ -1,22 +1,23 @@
 ﻿using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using System;
+using System.Linq;
 using System.Globalization;
 using Zeal.Compiler.Data;
 using Zeal.Compiler.Parser;
 using Zeal.Compiler.Helper;
+using System.ComponentModel;
 
 namespace Zeal.Compiler.Pass
 {
-    class CpuParseInfoPass : ZealCpuBaseListener
+    class ParseCpuPass : CpuPass
     {
-        private ZealCpuDriver _driver;
         private Scope _currentScope;
         private CpuInstructionStatement _currentInstruction;
 
-        public CpuParseInfoPass(ZealCpuDriver driver)
+        public ParseCpuPass(ZealCpuDriver driver)
+            : base(driver)
         {
-            _driver = driver;
         }
 
         public override void ExitHeaderDeclaration([NotNull] ZealCpuParser.HeaderDeclarationContext context)
@@ -25,8 +26,15 @@ namespace Zeal.Compiler.Pass
             {
                 switch (info.headerType.Text)
                 {
-                    case "CatridgeName":
-                        _driver.Header.CatridgeName = parseStringLiteral(info.headerValue.STRING_LITERAL());
+                    case "CartridgeName":
+                        if (info.headerValue.STRING_LITERAL() == null)
+                        {
+                            addErrorMesage("CartridgeName excepts a string literal.", info.headerValue.Start);
+                        }
+                        else
+                        {
+                            _driver.Header.CartridgeName = parseStringLiteral(info.headerValue.STRING_LITERAL());
+                        }
                         break;
                     case "RomSpeed":
                         {
@@ -34,6 +42,11 @@ namespace Zeal.Compiler.Pass
                             if (Enum.TryParse<RomSpeed>(info.headerValue.IDENTIFIER().GetText(), out speed))
                             {
                                 _driver.Header.RomSpeed = speed;
+                            }
+                            else
+                            {
+                                string validInput = String.Join(", ", Enum.GetNames(typeof(RomSpeed)));
+                                addErrorMesage(String.Format("'{0}' is not a valid RomSpeed. Valid inputs are: {1}", info.headerValue.IDENTIFIER().GetText(), validInput), info.headerValue.IDENTIFIER().Symbol);
                             }
                             break;
                         }
@@ -44,10 +57,22 @@ namespace Zeal.Compiler.Pass
                             {
                                 _driver.Header.MapMode = mode;
                             }
+                            else
+                            {
+                                string validInput = String.Join(", ", Enum.GetNames(typeof(MapMode)));
+                                addErrorMesage(String.Format("'{0}' is not a valid MapMode. Valid inputs are: {1}", info.headerValue.IDENTIFIER().GetText(), validInput), info.headerValue.IDENTIFIER().Symbol);
+                            }
                             break;
                         }
                     case "SramSize":
-                        _driver.Header.SramSize = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
+                        if (info.headerValue.numberLiteral() == null)
+                        {
+                            addErrorMesage("SramSize expects a number literal.", info.headerValue.Start);
+                        }
+                        else
+                        {
+                            _driver.Header.SramSize = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
+                        }
                         break;
                     case "Country":
                         {
@@ -56,19 +81,39 @@ namespace Zeal.Compiler.Pass
                             {
                                 _driver.Header.Country = country;
                             }
+                            else
+                            {
+                                string validInput = String.Join(", ", Enum.GetNames(typeof(Country)));
+                                addErrorMesage(String.Format("'{0}' is not a valid Country. Valid inputs are: {1}", info.headerValue.IDENTIFIER().GetText(), validInput), info.headerValue.IDENTIFIER().Symbol);
+                            }
                             break;
                         }
                     case "Developer":
                         {
-                            _driver.Header.Developer = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
+                            if (info.headerValue.numberLiteral() == null)
+                            {
+                                addErrorMesage("Developer expects a number literal.", info.headerValue.Start);
+                            }
+                            else
+                            {
+                                _driver.Header.Developer = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
+                            }
                             break;
                         }
                     case "Version":
                         {
-                            _driver.Header.Version = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
+                            if (info.headerValue.numberLiteral() == null)
+                            {
+                                addErrorMesage("Version expects a number literal.", info.headerValue.Start);
+                            }
+                            else
+                            {
+                                _driver.Header.Version = (uint)parseNumberLiteral(info.headerValue.numberLiteral());
+                            }
                             break;
                         }
                     default:
+                        addErrorMesage(String.Format("'{0}' is not a valid entry name for the header statement.", info.headerType.Text), info.headerType);
                         break;
                 }
             }
@@ -76,13 +121,12 @@ namespace Zeal.Compiler.Pass
 
         public override void ExitVectorsDeclaration([NotNull] ZealCpuParser.VectorsDeclarationContext context)
         {
+            _driver.Vectors = new Vectors();
+
             foreach (var info in context.vectorInfo())
             {
                 switch (info.vectorType.Text)
                 {
-                    case "COP":
-                        _driver.Vectors.COP = info.labelName.Text;
-                        break;
                     case "BRK":
                         _driver.Vectors.BRK = info.labelName.Text;
                         break;
@@ -96,8 +140,26 @@ namespace Zeal.Compiler.Pass
                         _driver.Vectors.Reset = info.labelName.Text;
                         break;
                     default:
+                        addErrorMesage(String.Format("'{0}' is not a valid entry name for the vectors statement.", info.vectorType.Text), info.vectorType);
                         break;
                 }
+            }
+
+            if (String.IsNullOrEmpty(_driver.Vectors.BRK))
+            {
+                addErrorMesage("BRK vector should be defined.", context.Start);
+            }
+            if (String.IsNullOrEmpty(_driver.Vectors.IRQ))
+            {
+                addErrorMesage("IRQ vector should be defined.", context.Start);
+            }
+            if (String.IsNullOrEmpty(_driver.Vectors.NMI))
+            {
+                addErrorMesage("NMI vector should be defined.", context.Start);
+            }
+            if (String.IsNullOrEmpty(_driver.Vectors.Reset))
+            {
+                addErrorMesage("Reset vector should be defined.", context.Start);
             }
         }
 
@@ -137,6 +199,9 @@ namespace Zeal.Compiler.Pass
         {
             _currentInstruction = new CpuInstructionStatement();
 
+            _currentInstruction.Line = context.Start.Line;
+            _currentInstruction.Column = context.Start.Column;
+
             CpuInstructions opcode;
             if (Enum.TryParse<CpuInstructions>(context.opcode().GetText(), out opcode))
             {
@@ -156,6 +221,10 @@ namespace Zeal.Compiler.Pass
                 if (((NumberInstructionArgument)argument).Size == ArgumentSize.Word)
                 {
                     _currentInstruction.AddressingMode = CpuAddressingMode.Absolute;
+                }
+                else if (((NumberInstructionArgument)argument).Size == ArgumentSize.LongWord)
+                {
+                    _currentInstruction.AddressingMode = CpuAddressingMode.AbsoluteLong;
                 }
                 else
                 {
@@ -204,6 +273,13 @@ namespace Zeal.Compiler.Pass
             if (labelContext != null)
             {
                 _currentInstruction.AssociatedLabel = labelContext.IDENTIFIER().GetText();
+            }
+
+            var opcodeAttributes = EnumHelper.GetAttributes<OpcodeAttribute>(_currentInstruction.Opcode).Where(x => x.AddressingMode == _currentInstruction.AddressingMode).ToArray();
+            if (opcodeAttributes == null || (opcodeAttributes != null && opcodeAttributes.Length == 0))
+            {
+                string descriptionAddressingMode = EnumHelper.GetAttribute<DescriptionAttribute>(_currentInstruction.AddressingMode).Description;
+                addErrorMesage(String.Format("opcode '{0}' does not support {1} addressing mode.", _currentInstruction.Opcode, descriptionAddressingMode), context.opcode().Start);
             }
 
             _currentScope.Statements.Add(_currentInstruction);

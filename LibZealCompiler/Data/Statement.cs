@@ -4,6 +4,9 @@
     {
         public string AssociatedLabel { get; set; }
 
+        public int Line { get; set; }
+        public int Column { get; set; }
+
         public Statement()
         {
             AssociatedLabel = null;

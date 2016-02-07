@@ -63,6 +63,7 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="CpuParseTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SemanticErrorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

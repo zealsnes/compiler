@@ -9,6 +9,24 @@ namespace ZealCompiler
 {
     class Program
     {
+        static void printErrorMessage(ErrorMessage error)
+        {
+            Console.Error.WriteLine("{0}({1},{2}): error: {3}", error.SourceFile, error.Line, error.Column, error.Message);
+            if (!String.IsNullOrEmpty(error.Context))
+            {
+                Console.Error.WriteLine(error.Context);
+                for (int i = 0; i < error.Column; ++i)
+                {
+                    Console.Error.Write(' ');
+                }
+                for(int i=error.StartToken; i<=error.EndToken; ++i)
+                {
+                    Console.Error.Write("^");
+                }
+                Console.Error.WriteLine();
+            }
+        }
+
         static int Main(string[] args)
         {
             if (args.Length < 1)
@@ -24,19 +42,22 @@ namespace ZealCompiler
             }
 
             ZealCpuDriver driver = new ZealCpuDriver(args[0]);
-            driver.Parse();
-            driver.ResolveLabels();
-
-            if (driver.Errors.Count > 0)
+            try
             {
-                string fullPath = Path.GetFullPath(args[0]);
-
-                foreach(var error in driver.Errors)
+                driver.Parse();
+                driver.SecondPass();
+            }
+            catch(CompilerErrorException)
+            {
+                foreach (var error in driver.Errors)
                 {
-                    Console.Error.WriteLine("{0}({1},{2}): error: {3}", fullPath, error.Line, error.Column, error.Message);
+                    printErrorMessage(error);
                 }
 
+#if DEBUG
                 Console.Read();
+#endif
+
                 return 1;
             }
 

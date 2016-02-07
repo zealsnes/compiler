@@ -88,7 +88,7 @@ namespace Zeal.Compiler.CodeGeneration
             {
                 cartridgeTitle[i] = (byte)' ';
             }
-            Array.Copy(Encoding.ASCII.GetBytes(Driver.Header.CatridgeName), cartridgeTitle, Encoding.ASCII.GetByteCount(Driver.Header.CatridgeName));
+            Array.Copy(Encoding.ASCII.GetBytes(Driver.Header.CartridgeName), cartridgeTitle, Encoding.ASCII.GetByteCount(Driver.Header.CartridgeName));
 
             _writer.Write(cartridgeTitle, 0, cartridgeTitle.Length);
 
@@ -150,19 +150,16 @@ namespace Zeal.Compiler.CodeGeneration
                 // = Native (65816 vectors) =
                 // ==========================
 
-                // COP vector
-                int cop = (int)GlobalScope.AddressFor(vectors.COP);
-                cop = CpuAddressConverter.PhysicalToRAM(cop, map, speed);
-
-                binWriter.Write((ushort)cop);
-
-                // BRK vector
+                // Use BRK version for COP vector
                 int brk = (int)GlobalScope.AddressFor(vectors.BRK);
                 brk = CpuAddressConverter.PhysicalToRAM(brk, map, speed);
 
                 binWriter.Write((ushort)brk);
 
-                // ABORT vector
+                // BRK vector
+                binWriter.Write((ushort)brk);
+
+                // Use BRK for ABORT vector
                 binWriter.Write((ushort)brk);
 
                 // NMI vector
@@ -190,7 +187,7 @@ namespace Zeal.Compiler.CodeGeneration
                 // COP vector
                 binWriter.Seek(CpuAddressConverter.RAMToPhysical(SfcRomHeader.EmulationCopVector, map), SeekOrigin.Begin);
 
-                binWriter.Write((ushort)cop);
+                binWriter.Write((ushort)brk);
 
                 // Rest of 6502 vectors
                 binWriter.Seek(CpuAddressConverter.RAMToPhysical(SfcRomHeader.EmulationVectors, map), SeekOrigin.Begin);

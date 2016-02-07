@@ -137,6 +137,7 @@ namespace Zeal.Compiler.Data
         [Opcode(CpuAddressingMode.Immediate, 0xA2)]
         [Opcode(CpuAddressingMode.Direct, 0xA6)]
         [Opcode(CpuAddressingMode.Absolute, 0xAE)]
+        [Opcode(CpuAddressingMode.AbsoluteLong, 0xAF)]
         ldx,
 
         [Opcode(CpuAddressingMode.Immediate, 0xA0)]
@@ -243,6 +244,7 @@ namespace Zeal.Compiler.Data
 
         [Opcode(CpuAddressingMode.Direct, 0x85)]
         [Opcode(CpuAddressingMode.Absolute, 0x8D)]
+        [Opcode(CpuAddressingMode.AbsoluteLong, 0x8F)]
         sta,
 
         [Opcode(0xDB)]

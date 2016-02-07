@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Zeal.Compiler.Data
 {
@@ -24,6 +25,19 @@ namespace Zeal.Compiler.Data
             {
                 return _statements;
             }
+        }
+
+        internal Scope GetScope(string text)
+        {
+            foreach(var child in _children)
+            {
+                if (child.Name == text)
+                {
+                    return child;
+                }
+            }
+
+            return null;
         }
 
         public Dictionary<string, long> Labels
@@ -60,6 +74,11 @@ namespace Zeal.Compiler.Data
             long result = -1;
             Labels.TryGetValue(label, out result);
             return result;
+        }
+
+        public bool IsLabelValid(string label)
+        {
+            return Labels.ContainsKey(label);
         }
     }
 }

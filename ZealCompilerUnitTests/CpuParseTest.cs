@@ -19,8 +19,8 @@ namespace Zeal.Compiler.UnitTests
             string input = @"
 header
 {
-    CatridgeName = ""HELLO WORLD SNES""
-    RomSpeed = SlowROW
+    CartridgeName = ""HELLO WORLD SNES""
+    RomSpeed = FastROM
     MapMode = HiROM
     SramSize = 32
     Country = NorthAmerica
@@ -31,8 +31,8 @@ header
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            Assert.Equal("HELLO WORLD SNES", driver.Header.CatridgeName);
-            Assert.Equal(RomSpeed.SlowROM, driver.Header.RomSpeed);
+            Assert.Equal("HELLO WORLD SNES", driver.Header.CartridgeName);
+            Assert.Equal(RomSpeed.FastROM, driver.Header.RomSpeed);
             Assert.Equal(MapMode.HiROM, driver.Header.MapMode);
             Assert.Equal(32u, driver.Header.SramSize);
             Assert.Equal(Country.NorthAmerica, driver.Header.Country);
@@ -46,7 +46,6 @@ header
             string input = @"
 vectors
 {
-    COP = CopVector
     BRK = BrkVector
     IRQ = IrqVector
     NMI = NmiVector
@@ -56,7 +55,6 @@ vectors
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            Assert.Equal("CopVector", driver.Vectors.COP);
             Assert.Equal("BrkVector", driver.Vectors.BRK);
             Assert.Equal("IrqVector", driver.Vectors.IRQ);
             Assert.Equal("NmiVector", driver.Vectors.NMI);
@@ -340,8 +338,6 @@ interrupt EmptyVector
 
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
-
-            driver.ResolveLabels();
 
             Assert.Equal(0, driver.GlobalScope.AddressFor("Test"));
             Assert.Equal(11, driver.GlobalScope.AddressFor("EmptyVector"));

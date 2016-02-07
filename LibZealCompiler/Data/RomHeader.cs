@@ -36,7 +36,7 @@
 
     public class RomHeader
     {
-        public string CatridgeName { get; set; }
+        public string CartridgeName { get; set; }
         public RomSpeed RomSpeed { get; set; }
         public MapMode MapMode { get; set; }
         public uint SramSize { get; set; }

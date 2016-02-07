@@ -61,14 +61,17 @@
     <Compile Include="Data\Vectors.cs" />
     <Compile Include="Helper\CpuAddressConverter.cs" />
     <Compile Include="Helper\EnumHelper.cs" />
+    <Compile Include="Parser\CompilerErrorException.cs" />
     <Compile Include="Parser\ErrorMessage.cs" />
-    <Compile Include="Pass\CpuParseInfoPass.cs" />
+    <Compile Include="Pass\ParseCpuPass.cs" />
     <Compile Include="Parser\ZealCpu.g4.lexer.cs">
       <DependentUpon>ZealCpu.g4</DependentUpon>
     </Compile>
     <Compile Include="Parser\ZealCpu.g4.parser.cs">
       <DependentUpon>ZealCpu.g4</DependentUpon>
     </Compile>
+    <Compile Include="Pass\CpuPass.cs" />
+    <Compile Include="Pass\SecondCpuPass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\RomHeader.cs" />
     <Compile Include="Parser\ZealCpuDriver.cs" />

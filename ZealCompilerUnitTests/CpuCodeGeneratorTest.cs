@@ -251,8 +251,6 @@ forwardBranch:
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
 
-            driver.ResolveLabels();
-
             MemoryStream memoryStream = new MemoryStream(32);
             CpuCodeGenerator generator = new CpuCodeGenerator(memoryStream);
             generator.Instructions = driver.GlobalScope.Children[0].Statements.Where(x => x is CpuInstructionStatement).Select(x => x as CpuInstructionStatement).ToList();
@@ -277,8 +275,6 @@ mainLoop:
 
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
             driver.Parse();
-
-            driver.ResolveLabels();
 
             RomHeader fakeHeader = new RomHeader();
             fakeHeader.MapMode = MapMode.LoROM;
