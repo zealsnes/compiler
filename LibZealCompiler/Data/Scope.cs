@@ -71,14 +71,36 @@ namespace Zeal.Compiler.Data
 
         public long AddressFor(string label)
         {
-            long result = -1;
-            Labels.TryGetValue(label, out result);
-            return result;
+            var currentScope = this;
+
+            while (currentScope != null)
+            {
+                long result = -1;
+                if (currentScope.Labels.TryGetValue(label, out result))
+                {
+                    return result;
+                }
+
+                currentScope = currentScope.Parent;
+            }
+
+            return -1;
         }
 
         public bool IsLabelValid(string label)
         {
-            return Labels.ContainsKey(label);
+            var currentScope = this;
+            while (currentScope != null)
+            {
+                if (currentScope.Labels.ContainsKey(label))
+                {
+                    return true;
+                }
+
+                currentScope = currentScope.Parent;
+            }
+
+            return false;
         }
     }
 }

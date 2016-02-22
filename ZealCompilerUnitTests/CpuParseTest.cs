@@ -16,7 +16,7 @@ namespace Zeal.Compiler.UnitTests
         [Fact]
         public void ShouldParseHeaderInfo()
         {
-            string input = @"
+            const string input = @"
 header
 {
     CartridgeName = ""HELLO WORLD SNES""
@@ -43,7 +43,7 @@ header
         [Fact]
         public void ShouldParseVectorsInfo()
         {
-            string input = @"
+            const string input = @"
 vectors
 {
     BRK = BrkVector
@@ -64,7 +64,7 @@ vectors
         [Fact]
         public void ShouldParseProcedure()
         {
-            string input = @"procedure Test
+            const string input = @"procedure Test
 {
 }";
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
@@ -77,7 +77,7 @@ vectors
         [Fact]
         public void ShouldParseInterrupt()
         {
-            string input = @"interrupt EmptyVector
+            const string input = @"interrupt EmptyVector
 {
 }";
             ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
@@ -90,7 +90,7 @@ vectors
         [Fact]
         public void ShouldAddRTIWhenParsingInterrupt()
         {
-            string input = @"interrupt NMI
+            const string input = @"interrupt NMI
 {
     php
     pha
@@ -112,7 +112,7 @@ vectors
         [Fact]
         public void ShouldParseLabel()
         {
-            string input = @"procedure Test
+            const string input = @"procedure Test
 {
     php
     pha
@@ -312,39 +312,6 @@ exit:
 
             Assert.Equal(value, argument.Number);
             Assert.Equal(size, argument.Size);
-        }
-
-        [Fact]
-        public void ShoulResolveLabelsToAddress()
-        {
-            string input = @"procedure Test
-{
-    php
-    pha
-
-mainLoop:
-    lda $2007
-    jmp mainLoop
-    bra exit
-
-exit:
-    rts
-}
-
-interrupt EmptyVector
-{
-}
-";
-
-            ZealCpuDriver driver = new ZealCpuDriver(input.ToMemoryStream());
-            driver.Parse();
-
-            Assert.Equal(0, driver.GlobalScope.AddressFor("Test"));
-            Assert.Equal(11, driver.GlobalScope.AddressFor("EmptyVector"));
-
-            var testScope = driver.GlobalScope.Children[0];
-            Assert.Equal(2, testScope.AddressFor("mainLoop"));
-            Assert.Equal(10, testScope.AddressFor("exit"));
         }
     }
 }
